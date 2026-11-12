@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { ComingSoon } from "./ComingSoon";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: "📊" },
@@ -24,6 +25,12 @@ export function SidebarNav() {
           <span aria-hidden>{n.icon}</span>{n.label}
         </Link>
       ))}
+      <ComingSoon feature="calendar" className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-100">
+        <span aria-hidden>📅</span><span className="flex-1">Calendario</span>
+      </ComingSoon>
+      <ComingSoon feature="competitors" className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-100">
+        <span aria-hidden>🔍</span><span className="flex-1">Competencia</span>
+      </ComingSoon>
     </nav>
   );
 }

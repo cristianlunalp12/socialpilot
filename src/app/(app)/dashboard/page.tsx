@@ -8,6 +8,7 @@ import { Card, PageHeader, PlatformBadge, Stat, Empty } from "@/components/ui";
 import { DailyViewsChart, EngagementByPlatform, FollowersChart, SentimentDonut } from "@/components/Charts";
 import { ActionButton } from "@/components/ActionButton";
 import { syncNow } from "@/app/actions";
+import { ComingSoon } from "@/components/ComingSoon";
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
   const { workspace } = await requireWorkspace();
@@ -38,6 +39,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         subtitle={`${workspace.name} · últimos ${days} días`}
         actions={<>
           {[7, 30, 90].map((d) => <Link key={d} href={`?days=${d}`} className={d === days ? "btn-primary" : "btn-secondary"}>{d}d</Link>)}
+          <ComingSoon feature="pdfReport">📄 Exportar PDF</ComingSoon>
           <ActionButton action={syncNow} label="Sincronizar" pendingLabel="Sincronizando..." />
         </>}
       />

@@ -4,6 +4,8 @@ import { env } from "@/lib/env";
 import { Card, PageHeader, PlatformBadge } from "@/components/ui";
 import { InviteForm, WorkspaceSettingsForm } from "@/components/SettingsForms";
 import { disconnectAccount, removeMember } from "@/app/actions";
+import { ComingSoon } from "@/components/ComingSoon";
+import type { UpcomingFeature } from "@/lib/upcoming";
 
 const PROVIDERS = [
   { id: "meta", label: "Facebook + Instagram", note: "Páginas de Facebook y cuentas de Instagram Business/Creator vinculadas." },
@@ -38,6 +40,12 @@ export default async function Settings({ searchParams }: { searchParams: Promise
                   <div className="font-medium">Conectar {p.label}</div>
                   <p className="mt-1 text-xs text-slate-500">{p.note}</p>
                 </a>
+              ))}
+              {([["linkedin", "LinkedIn"], ["x", "X (Twitter)"], ["pinterest", "Pinterest"]] as [UpcomingFeature, string][]).map(([f, label]) => (
+                <ComingSoon key={f} feature={f} className="flex flex-col items-start gap-1 rounded-xl border border-dashed border-slate-300 p-4 text-left hover:border-brand-500 hover:bg-brand-50">
+                  <span className="font-medium">Conectar {label}</span>
+                  <span className="text-xs text-slate-500">Disponible próximamente</span>
+                </ComingSoon>
               ))}
             </div>
           )}

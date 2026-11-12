@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { Card, Empty, PageHeader, PlatformBadge, StatusBadge } from "@/components/ui";
 import { ActionButton } from "@/components/ActionButton";
 import { syncNow } from "@/app/actions";
+import { ComingSoon } from "@/components/ComingSoon";
 
 const FILTERS: [string, string][] = [["", "Todos"], ["reply", "Requieren respuesta"], ["NEGATIVE", "Negativos"], ["POSITIVE", "Positivos"], ["pending", "Sin analizar"]];
 
@@ -46,7 +47,8 @@ export default async function Inbox({ searchParams }: { searchParams: Promise<{ 
                   {c.topics.map((t) => <Link key={t} href={`?topic=${encodeURIComponent(t)}`} className="rounded-full bg-slate-100 px-2 py-0.5 hover:bg-slate-200">#{t}</Link>)}
                 </div>
                 <p className="mt-1.5 text-sm">{c.text}</p>
-                <div className="mt-1 flex gap-3 text-xs">
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-xs">
+                  <ComingSoon feature="aiReply" className="inline-flex items-center gap-1 font-medium text-violet-600 hover:text-violet-800">✨ Responder con IA</ComingSoon>
                   <Link href={`/posts/${c.target.post.id}`} className="text-brand-600">Ver publicación</Link>
                   {c.target.permalink && <a href={c.target.permalink} target="_blank" className="text-brand-600">Responder en la red ↗</a>}
                 </div>

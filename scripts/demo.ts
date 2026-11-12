@@ -127,6 +127,7 @@ async function main() {
     AUTH_SECRET: secrets.AUTH_SECRET,
     ENCRYPTION_KEY: secrets.ENCRYPTION_KEY,
     NEXT_TELEMETRY_DISABLED: "1",
+    ADMIN_EMAILS: process.env.ADMIN_EMAILS || "demo@socialpilot.dev",
   };
 
   let stopping = false;

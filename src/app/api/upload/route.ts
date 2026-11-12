@@ -4,9 +4,10 @@ import { randomBytes } from "node:crypto";
 import path from "node:path";
 import { requireWorkspace } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { uploadDir } from "@/lib/uploads";
 
 /**
- * Dev-grade upload to /public/uploads. Instagram, TikTok and YouTube fetch media from a PUBLIC URL,
+ * Local-disk upload (UPLOAD_DIR, default ./.uploads), served by /media/[file]. Instagram, TikTok and YouTube fetch media from a PUBLIC URL,
  * so in production replace this with S3/R2/GCS (and verify the domain in TikTok's developer portal).
  */
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/quicktime"];
@@ -19,8 +20,8 @@ export async function POST(req: Request) {
   if (file.size > 500 * 1024 * 1024) return NextResponse.json({ error: "Máximo 500 MB" }, { status: 400 });
   const ext = file.name.split(".").pop()?.replace(/[^a-z0-9]/gi, "") || "bin";
   const name = `${Date.now()}-${randomBytes(4).toString("hex")}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads");
+  const dir = uploadDir();
   await mkdir(dir, { recursive: true });
   await writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
-  return NextResponse.json({ url: `${env.appUrl}/uploads/${name}`, mediaType: file.type.startsWith("video") ? "VIDEO" : "IMAGE" });
+  return NextResponse.json({ url: `${env.appUrl}/media/${name}`, mediaType: file.type.startsWith("video") ? "VIDEO" : "IMAGE" });
 }

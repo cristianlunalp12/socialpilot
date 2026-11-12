@@ -73,11 +73,34 @@ Configura en cada portal de desarrollador la URL de redirección `{APP_URL}/api/
 
 **Archivos multimedia:** Instagram, TikTok y YouTube descargan el archivo desde una **URL pública**. `/api/upload` guarda los archivos en `public/uploads`, lo que sirve para desarrollo. En producción hay que cambiarlo por S3, R2 o GCS.
 
-## Producción
+## Publicar en internet (Render)
 
-- Despliega la web (Vercel, Fly o Render) y el **worker como proceso aparte** (contenedor o servicio en segundo plano). Comparten la misma `DATABASE_URL`.
-- Ejecuta `npm run db:deploy` en cada despliegue.
-- Los cron del worker están en UTC (`src/worker/index.ts`).
+El repositorio trae un `render.yaml` (Blueprint) que crea **una base de datos Postgres y un servicio web**. Ese servicio ejecuta la app y el worker juntos (`npm run start:prod`), aplica las migraciones y, con `DEMO_SEED=true`, carga el demo.
+
+1. Crea una cuenta en [render.com](https://render.com) entrando **con GitHub** y dale acceso al repo `socialpilot`.
+2. **New → Blueprint** → elige el repo → **Apply**. Render genera `AUTH_SECRET` y `ENCRYPTION_KEY` automáticamente.
+3. Cuando te los pida, rellena:
+   - `ADMIN_EMAILS`: tu email. Debes **registrarte en la app con ese mismo email** para ver `/admin`, con la demanda de funciones y la lista de espera.
+   - `ANTHROPIC_API_KEY`: opcional, activa la IA.
+4. En unos minutos tendrás una URL pública del tipo `https://socialpilot-xxxx.onrender.com`.
+
+**Plan gratuito (válido para un demo público):** el servicio se duerme tras unos 15 minutos sin visitas (la siguiente visita tarda unos 50 s en despertarlo) y la base de datos gratuita caduca a los 30 días. Revisa los límites vigentes en la web de Render.
+
+**Para clientes reales:**
+- Cambia a planes de pago (servicio y Postgres) para que el worker no se duerma.
+- Pon `DEMO_SEED=false` y `PLATFORM_MODE=live`, y añade las credenciales de cada red (ver la sección anterior).
+- Conecta tu dominio (Settings → Custom Domains) y define `APP_URL=https://tu-dominio.com`.
+- Mueve los archivos subidos a S3 o R2: el disco del servicio se borra en cada despliegue.
+
+Otros hosts (Railway, Fly.io, un VPS) funcionan igual: `npm ci && npm run build` para construir, `npm run start:prod` para arrancar, y una `DATABASE_URL` de Postgres.
+
+## Botones "Próximamente" (fake doors)
+
+Sirven para medir el interés en funciones de pago **antes de construirlas**. Parecen botones normales con una etiqueta *Pro* o *Business*, y al pulsarlos abren un aviso "Próximamente con suscripción" con la opción "Avisarme". Están en el menú lateral (Calendario, Competencia y *Mejorar a Pro*), en el dashboard (Exportar PDF), en la bandeja (Responder con IA), en el compositor (Usar mejor hora) y en Configuración (LinkedIn, X y Pinterest).
+
+- Cada clic y cada email de la lista de espera se guardan en la base de datos. Los ves en **/admin**, visible solo para los emails de `ADMIN_EMAILS`. En el demo local, ese admin es la cuenta demo.
+- En la cuenta demo compartida, "Avisarme" pide el email del visitante. Así capturas contactos reales.
+- Para añadir o quitar funciones, edita `src/lib/upcoming.ts` y usa `<ComingSoon feature="clave">Texto</ComingSoon>` en cualquier pantalla.
 
 ## Roadmap sugerido
 

@@ -17,6 +17,7 @@ model User {
   createdAt    DateTime     @default(now())
   memberships  Membership[]
   posts        Post[]       @relation("PostAuthor")
+  interests    FeatureInterest[]
 }
 
 model Workspace {
@@ -31,6 +32,7 @@ model Workspace {
   accounts        SocialAccount[]
   posts           Post[]
   recommendations Recommendation[]
+  interests       FeatureInterest[]
 }
 
 enum Role {
@@ -221,4 +223,32 @@ model Recommendation {
   // JSON: { items: [{ title, rationale, action, impact, platform? }], bestTimes: [...] }
   payload     Json
   createdAt   DateTime  @default(now())
+}
+
+// "Fake door" tracking: clicks on not-yet-built (subscription) features, to measure demand.
+model FeatureInterest {
+  id          String    @id @default(cuid())
+  feature     String    // key from src/lib/upcoming.ts
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  clicks      Int       @default(1)
+  notify      Boolean   @default(false) // asked to be notified when it launches
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, feature])
+  @@index([feature])
+}
+
+// Emails that asked to be notified when an upcoming feature launches (works for the shared demo account too).
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String
+  feature   String
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@unique([email, feature])
 }

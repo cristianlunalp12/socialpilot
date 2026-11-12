@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Platform } from "@prisma/client";
 import clsx from "clsx";
 import { aiGenerateCopy, savePost } from "@/app/actions";
+import { ComingSoon } from "./ComingSoon";
 import { PLATFORM_COLOR, PLATFORM_LABEL } from "@/lib/utils";
 
 type Account = { id: string; platform: Platform; name: string };
@@ -152,7 +153,12 @@ export function Composer({ accounts, aiEnabled }: { accounts: Account[]; aiEnabl
               <button key={v} type="button" onClick={() => setMode(v)} className={mode === v ? "btn-primary" : "btn-secondary"}>{l}</button>
             ))}
           </div>
-          {mode === "schedule" && <input type="datetime-local" className="input max-w-xs" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />}
+          {mode === "schedule" && (
+            <div className="flex flex-wrap items-center gap-2">
+              <input type="datetime-local" className="input max-w-xs" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />
+              <ComingSoon feature="bestTime">🕐 Usar mejor hora</ComingSoon>
+            </div>
+          )}
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button type="button" className="btn-primary w-full" onClick={submit} disabled={savePending || selectedAccounts.length === 0}>
             {savePending ? "Guardando..." : mode === "now" ? "Publicar" : mode === "schedule" ? "Programar publicación" : "Guardar"}

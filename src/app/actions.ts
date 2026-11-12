@@ -219,3 +219,25 @@ export async function syncNow(): Promise<FormState> {
   revalidatePath("/", "layout");
   return { ok: `Métricas sincronizadas · ${created.length} comentarios nuevos · ${analyzed} analizados` };
 }
+
+// ───────────── Fake doors (coming soon) ─────────────
+
+export async function recordInterest(feature: string, notifyEmail?: string): Promise<{ error?: string } | void> {
+  const { isUpcomingFeature } = await import("@/lib/upcoming");
+  if (!isUpcomingFeature(feature)) return;
+  const { user, workspace } = await requireWorkspace();
+  const notify = notifyEmail !== undefined;
+  if (notify) {
+    const email = z.email().safeParse(notifyEmail.trim().toLowerCase());
+    if (!email.success) return { error: "Escribe un email válido." };
+    await db.waitlistEntry.upsert({
+      where: { email_feature: { email: email.data, feature } },
+      create: { email: email.data, feature, userId: user.id }, update: {},
+    });
+  }
+  await db.featureInterest.upsert({
+    where: { userId_feature: { userId: user.id, feature } },
+    create: { userId: user.id, workspaceId: workspace.id, feature, notify },
+    update: notify ? { notify: true } : { clicks: { increment: 1 } },
+  });
+}

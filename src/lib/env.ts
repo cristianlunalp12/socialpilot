@@ -5,7 +5,8 @@ function req(name: string): string {
 }
 
 export const env = {
-  get appUrl() { return process.env.APP_URL ?? "http://localhost:3000"; },
+  // RENDER_EXTERNAL_URL is set automatically on Render.
+  get appUrl() { return process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || "http://localhost:3000"; },
   get authSecret() { return req("AUTH_SECRET"); },
   get encryptionKey() { return req("ENCRYPTION_KEY"); },
   get mockPlatforms() { return (process.env.PLATFORM_MODE ?? "mock") === "mock"; },
