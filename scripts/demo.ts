@@ -30,6 +30,7 @@ const bin = {
 
 const log = (msg: string) => console.log(`\x1b[36m[demo]\x1b[0m ${msg}`);
 const children: ChildProcess[] = [];
+let pgInstance: EmbeddedPostgres | null = null;
 
 function freePort(start: number): Promise<number> {
   return new Promise((resolve) => {
@@ -50,6 +51,26 @@ function run(script: string, args: string[], env: NodeJS.ProcessEnv, name: strin
     return Promise.resolve();
   }
   return new Promise((resolve, reject) => child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`${name} terminó con código ${code}`)))));
+}
+
+/**
+ * Creates the app database as UTF-8 (template0 lets it differ from the cluster default).
+ * A database left by an earlier run with another encoding only holds demo data, so it is recreated.
+ */
+async function ensureUtf8Database(pg: EmbeddedPostgres, name: string) {
+  const client = pg.getPgClient("postgres", "localhost");
+  await client.connect();
+  try {
+    const { rows } = await client.query("SELECT pg_encoding_to_char(encoding) AS enc FROM pg_database WHERE datname = $1", [name]);
+    if (rows[0]?.enc === "UTF8") return;
+    if (rows[0]) {
+      log(`La base de datos de demo usa ${rows[0].enc}; se recrea en UTF-8...`);
+      await client.query(`DROP DATABASE "${name}" WITH (FORCE)`);
+    }
+    await client.query(`CREATE DATABASE "${name}" ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0`);
+  } finally {
+    await client.end();
+  }
 }
 
 async function waitFor(url: string, timeoutMs = 180_000) {
@@ -86,12 +107,15 @@ async function main() {
     databaseDir: PG_DIR, port: PG_PORT, user: "postgres", password: "postgres", persistent: true,
     // Postgres refuses to run as root (e.g. in containers); the package creates a dedicated user then.
     createPostgresUser: typeof process.getuid === "function" && process.getuid() === 0,
+    // Force UTF-8: on Windows initdb otherwise uses the system code page (e.g. WIN1252),
+    // which cannot store emojis or many non-Latin characters.
+    initdbFlags: ["--encoding=UTF8", "--no-locale"],
     onLog: () => {},
   });
-  const fresh = !existsSync(path.join(PG_DIR, "PG_VERSION"));
-  if (fresh) await pg.initialise();
+  pgInstance = pg;
+  if (!existsSync(path.join(PG_DIR, "PG_VERSION"))) await pg.initialise();
   await pg.start();
-  if (fresh) await pg.createDatabase("socialpilot");
+  await ensureUtf8Database(pg, "socialpilot");
 
   const port = await freePort(3000);
   const url = `http://localhost:${port}`;
@@ -145,6 +169,9 @@ async function main() {
 
 main().catch(async (e) => {
   console.error("\n\x1b[31m[demo] Error:\x1b[0m", e instanceof Error ? e.message : e);
+  console.error("Si necesitas ayuda, copia también los mensajes que aparecen más arriba.");
   for (const c of children) c.kill("SIGTERM");
+  // Stop Postgres too, otherwise it keeps running in the background and blocks the next start.
+  await pgInstance?.stop().catch(() => {});
   process.exit(1);
 });
