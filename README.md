@@ -2,6 +2,19 @@
 
 SaaS multiusuario para **automatizar publicaciones** en Facebook, Instagram, TikTok y YouTube, **recoger métricas y comentarios** y convertirlos en **decisiones** con ayuda de Claude.
 
+## 🚀 Probar el demo (5 minutos, sin Docker)
+
+Solo necesitas **Node.js 20 o superior** ([descargar](https://nodejs.org), versión LTS).
+
+1. Descarga el código: botón verde **Code → Download ZIP** en GitHub (y descomprímelo), o `git clone https://github.com/cristianlunalp12/socialpilot.git`
+2. Inicia el demo:
+   - **Windows:** doble clic en `Iniciar demo (Windows).bat`
+   - **Mac:** clic derecho en `iniciar-demo.command` → Abrir (la primera vez macOS pide confirmar)
+   - **Cualquier sistema, desde la terminal:** `npm install` y luego `npm run demo`
+3. Se abre el navegador en `http://localhost:3000` (o el siguiente puerto libre). Entra con **demo@socialpilot.dev / demo12345**.
+
+El demo levanta una base de datos PostgreSQL integrada (se guarda en la carpeta `.demo/`), carga 40 publicaciones de ejemplo con métricas y comentarios, y simula Facebook, Instagram, TikTok y YouTube. No publica nada real. Para detenerlo pulsa **Ctrl+C**, y para empezar de cero borra la carpeta `.demo/`. Para activar la IA, crea un archivo `.env` con `ANTHROPIC_API_KEY=tu-clave` y reinicia.
+
 ## Qué hace
 
 | Módulo | Descripción |
@@ -34,7 +47,7 @@ Next.js 15 (App Router, Server Actions)          Worker (npm run worker)
 - **Adaptadores** (`src/lib/platforms/*`): implementan una interfaz común (`publish`, `fetchMetrics`, `fetchComments`, `fetchAccountStats`, `refresh`). Para añadir una red (LinkedIn, X…) basta con escribir un adaptador nuevo.
 - **IA** (`src/lib/ai.ts`): usa `claude-opus-5-5` con salidas estructuradas validadas con Zod. El esfuerzo es `low` para clasificar comentarios, `medium` para los copys y `high` para las recomendaciones. Tiene activado el **fallback del lado del servidor** (`fallbacks: "default"`): si el modelo rechaza una petición, la API la reintenta automáticamente con otro modelo. Se puede quitar en `structured()` si no lo quieres.
 
-## Puesta en marcha (local)
+## Puesta en marcha (desarrollo, con tu propio Postgres)
 
 ```bash
 cp .env.example .env          # genera AUTH_SECRET y ENCRYPTION_KEY con: openssl rand -base64 32
