@@ -10,5 +10,6 @@ export async function GET(_: Request, { params }: { params: Promise<{ provider: 
   if (!PROVIDERS.includes(provider as Provider)) return new NextResponse("Unknown provider", { status: 404 });
   const { workspace, user } = await requireWorkspace("ADMIN");
   const state = await signState({ workspaceId: workspace.id, userId: user.id, provider });
-  return NextResponse.redirect(adapterFor(provider as Provider).authUrl(state, redirectUriFor(provider as Provider)));
+  const url = adapterFor(provider as Provider).authUrl(state, redirectUriFor(provider as Provider));
+  return new NextResponse(null, { status: 303, headers: { Location: url } });
 }

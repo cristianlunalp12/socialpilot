@@ -1,13 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { encrypt } from "@/lib/crypto";
-import { env } from "@/lib/env";
 import { readSession, verifyState } from "@/lib/session";
 import { adapterFor, redirectUriFor, type Provider } from "@/lib/platforms";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ provider: string }> }) {
   const { provider } = await params;
-  const back = (q: string) => NextResponse.redirect(`${env.appUrl}/settings?${q}`);
+  // Relative Location keeps the redirect on whatever host the user is browsing.
+  const back = (q: string) => new NextResponse(null, { status: 303, headers: { Location: `/settings?${q}` } });
   const code = req.nextUrl.searchParams.get("code");
   const stateTok = req.nextUrl.searchParams.get("state");
   if (!code || !stateTok) return back(`error=${encodeURIComponent(req.nextUrl.searchParams.get("error_description") ?? "Autorización cancelada")}`);

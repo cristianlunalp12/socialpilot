@@ -24,7 +24,8 @@ const MOCK_ACCOUNTS: Record<Provider, { platform: Platform; name: string }[]> = 
 export function mockAdapter(provider: Provider): ProviderAdapter {
   return {
     provider,
-    authUrl: (state, redirectUri) => `${redirectUri}?code=mock-code&state=${encodeURIComponent(state)}`,
+    // Relative URL so the mock flow works behind any host/proxy.
+    authUrl: (state) => `/api/oauth/${provider}/callback?code=mock-code&state=${encodeURIComponent(state)}`,
     async handleCallback() {
       return MOCK_ACCOUNTS[provider].map((a) => ({
         platform: a.platform, externalId: `mock-${a.platform.toLowerCase()}`, name: a.name,
