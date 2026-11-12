@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────── Tenancy ───────────────
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  memberships  Membership[]
+  posts        Post[]       @relation("PostAuthor")
+}
+
+model Workspace {
+  id              String           @id @default(cuid())
+  name            String
+  slug            String           @unique
+  // Brand voice / audience description used as context for AI generation.
+  brandVoice      String?
+  createdAt       DateTime         @default(now())
+  memberships     Membership[]
+  invites         Invite[]
+  accounts        SocialAccount[]
+  posts           Post[]
+  recommendations Recommendation[]
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  role        Role      @default(EDITOR)
+  userId      String
+  workspaceId String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, workspaceId])
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  email       String
+  role        Role      @default(EDITOR)
+  token       String    @unique
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  acceptedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+}
+
+// ─────────────── Social accounts ───────────────
+
+enum Platform {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+}
+
+model SocialAccount {
+  id             String     @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  platform       Platform
+  // Page id (FB), IG business user id, TikTok open_id, YouTube channel id.
+  externalId     String
+  name           String
+  avatarUrl      String?
+  // Tokens are AES-256-GCM encrypted (see src/lib/crypto.ts).
+  accessToken    String
+  refreshToken   String?
+  tokenExpiresAt DateTime?
+  scopes         String?
+  status         String     @default("active") // active | expired | error
+  lastError      String?
+  createdAt      DateTime   @default(now())
+  targets        PostTarget[]
+  snapshots      AccountSnapshot[]
+
+  @@unique([workspaceId, platform, externalId])
+}
+
+// Daily follower / reach snapshot per account (for growth charts).
+model AccountSnapshot {
+  id        String        @id @default(cuid())
+  accountId String
+  account   SocialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  date      DateTime      @db.Date
+  followers Int           @default(0)
+  reach     Int           @default(0)
+
+  @@unique([accountId, date])
+}
+
+// ─────────────── Content ───────────────
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  PARTIAL
+  FAILED
+}
+
+enum MediaType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+model Post {
+  id          String       @id @default(cuid())
+  workspaceId String
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User         @relation("PostAuthor", fields: [authorId], references: [id])
+  title       String?      // used by YouTube
+  baseCaption String
+  mediaType   MediaType    @default(TEXT)
+  // Must be a publicly reachable URL: Instagram, TikTok (PULL_FROM_URL) and YouTube fetch from it.
+  mediaUrl    String?
+  tags        String[]     @default([])
+  status      PostStatus   @default(DRAFT)
+  scheduledAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  targets     PostTarget[]
+}
+
+enum TargetStatus {
+  PENDING
+  PUBLISHING
+  PUBLISHED
+  FAILED
+}
+
+// One row per (post, social account): the caption can be adapted per platform.
+model PostTarget {
+  id           String         @id @default(cuid())
+  postId       String
+  post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  accountId    String
+  account      SocialAccount  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  caption      String
+  status       TargetStatus   @default(PENDING)
+  externalId   String?        // platform post/media/video id
+  permalink    String?
+  error        String?
+  attempts     Int            @default(0)
+  publishedAt  DateTime?
+  metrics      PostMetric[]
+  comments     Comment[]
+
+  @@unique([postId, accountId])
+}
+
+// Time series of metrics per published target (one row per sync).
+model PostMetric {
+  id          String     @id @default(cuid())
+  targetId    String
+  target      PostTarget @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  capturedAt  DateTime   @default(now())
+  impressions Int        @default(0)
+  reach       Int        @default(0)
+  views       Int        @default(0)
+  likes       Int        @default(0)
+  comments    Int        @default(0)
+  shares      Int        @default(0)
+  saves       Int        @default(0)
+  watchTimeSec Int       @default(0)
+
+  @@index([targetId, capturedAt])
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+model Comment {
+  id          String     @id @default(cuid())
+  targetId    String
+  target      PostTarget @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  externalId  String
+  authorName  String
+  text        String
+  postedAt    DateTime
+  sentiment   Sentiment?
+  topics      String[]   @default([])
+  needsReply  Boolean    @default(false)
+  analyzedAt  DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@unique([targetId, externalId])
+}
+
+// AI-generated, data-backed recommendations.
+model Recommendation {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  summary     String
+  // JSON: { items: [{ title, rationale, action, impact, platform? }], bestTimes: [...] }
+  payload     Json
+  createdAt   DateTime  @default(now())
+}
