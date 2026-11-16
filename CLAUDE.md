@@ -15,12 +15,13 @@ SaaS multiusuario para programar publicaciones en Facebook, Instagram, TikTok y 
 - Dashboard, bandeja de retroalimentación, página de insights.
 - Demo local con un solo comando: `npm run demo` (Postgres integrado y forzado a UTF-8 por Windows) y lanzadores `.bat` / `.command`. Probado por el usuario en Windows.
 - Botones "Próximamente" (fake doors): `src/lib/upcoming.ts` y `src/components/ComingSoon.tsx`. Registran clics (`FeatureInterest`) y lista de espera (`WaitlistEntry`); los datos se ven en `/admin` (acceso por `ADMIN_EMAILS`).
+- Landing pública en `/` (`src/app/page.tsx`): estética oscura con degradados coral/violeta, comparativa contra un community manager, planes y FAQ. Precios de referencia en la constante `PLANS` (Inicial 19, Pro 39, Business 79 USD), aún sin cobro real. Usuarios con sesión ven "Ir a mi panel".
 - Despliegue: `render.yaml` (Blueprint) + `npm run start:prod`, que ejecuta migraciones, la semilla opcional (`DEMO_SEED`), la web y el worker juntos. Los archivos subidos se sirven desde `/media/[file]`.
 
 ## Pendiente / siguientes pasos
 1. El usuario va a desplegar en Render. `render.yaml` no se pudo validar contra la documentación de Render (red bloqueada en la sesión): revisar si da errores.
 2. Páginas de política de privacidad y términos (requisito de las revisiones de Meta, TikTok y Google).
-3. Página de precios (Pro / Business) y, después, facturación con Stripe.
+3. Precios ya visibles en la landing; falta confirmar los montos y la facturación con Stripe (la landing promete 14 días de prueba sin tarjeta).
 4. Almacenamiento S3/R2 para archivos subidos (el disco de Render no persiste).
 5. La IA no se ha probado con una API key real.
 
