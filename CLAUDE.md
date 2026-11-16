@@ -2,6 +2,14 @@
 
 SaaS multiusuario para programar publicaciones en Facebook, Instagram, TikTok y YouTube, recoger métricas y comentarios, y generar recomendaciones con Claude. La guía completa para usuarios está en `README.md`.
 
+## App nueva: `app-v2/` (noviembre 2026)
+El usuario pidió una app nueva desde cero con la misma idea. Vive en `app-v2/`, independiente de la app de la raíz (el `tsconfig.json` raíz la excluye). Ver `app-v2/README.md`.
+- Hecho: login/registro, workspaces, roles e invitaciones por enlace; compositor (ahora / programar / borrador) con reintentos; calendario mensual; panel de estadísticas (KPIs con comparación, seguidores por red, interacción por red, top publicaciones); worker (publica cada 30 s, métricas cada 15 min); demo `npm run demo` (puerto Postgres 54339, base `socialpilot_v2`).
+- Sin IA en esta versión (decisión del usuario). Redes solo simuladas: falta OAuth y API reales en `src/lib/platforms.ts`.
+- Verificar desde `app-v2/`: `npx tsc --noEmit` y `npm run build`.
+
+## App original (raíz)
+
 ## Stack
 - Next.js 15 (App Router, Server Actions), TypeScript y Tailwind v4.
 - PostgreSQL + Prisma 6. La cola de trabajos es pg-boss (sin Redis), con el worker en `src/worker/index.ts`.

@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum Platform {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  PARTIAL
+  FAILED
+}
+
+enum TargetStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  memberships  Membership[]
+  posts        Post[]
+}
+
+model Workspace {
+  id          String          @id @default(cuid())
+  name        String
+  timezone    String          @default("America/Mexico_City")
+  createdAt   DateTime        @default(now())
+  memberships Membership[]
+  invitations Invitation[]
+  accounts    SocialAccount[]
+  posts       Post[]
+}
+
+model Membership {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        Role      @default(EDITOR)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  workspaceId String
+  email       String
+  role        Role      @default(EDITOR)
+  token       String    @unique
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model SocialAccount {
+  id             String          @id @default(cuid())
+  workspaceId    String
+  platform       Platform
+  externalId     String
+  handle         String
+  displayName    String
+  accessToken    String?
+  connectedAt    DateTime        @default(now())
+  disconnectedAt DateTime?
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  targets        PostTarget[]
+  metrics        AccountMetric[]
+
+  @@unique([workspaceId, platform, externalId])
+}
+
+/// Una fila por cuenta y día: seguidores al cierre del día, impresiones e interacciones del día.
+model AccountMetric {
+  id          String        @id @default(cuid())
+  accountId   String
+  date        DateTime      @db.Date
+  followers   Int
+  impressions Int
+  engagements Int
+  account     SocialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, date])
+}
+
+model Post {
+  id          String       @id @default(cuid())
+  workspaceId String
+  authorId    String
+  content     String       @db.Text
+  mediaUrl    String?
+  status      PostStatus   @default(DRAFT)
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author      User         @relation(fields: [authorId], references: [id])
+  targets     PostTarget[]
+
+  @@index([status, scheduledAt])
+  @@index([workspaceId, scheduledAt])
+}
+
+/// Una publicación en una cuenta concreta (una Post puede ir a varias redes).
+model PostTarget {
+  id          String        @id @default(cuid())
+  postId      String
+  accountId   String
+  status      TargetStatus  @default(PENDING)
+  attempts    Int           @default(0)
+  error       String?
+  externalId  String?
+  url         String?
+  publishedAt DateTime?
+  likes       Int           @default(0)
+  comments    Int           @default(0)
+  shares      Int           @default(0)
+  views       Int           @default(0)
+  metricsAt   DateTime?
+  post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  account     SocialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, accountId])
+}
