@@ -11,5 +11,5 @@ export const PLATFORM_LABEL = {
 } as const;
 
 export const PLATFORM_COLOR = {
-  FACEBOOK: "#1877F2", INSTAGRAM: "#C13584", TIKTOK: "#111111", YOUTUBE: "#FF0000",
+  FACEBOOK: "#1877F2", INSTAGRAM: "#C13584", TIKTOK: "#25F4EE", YOUTUBE: "#FF0000",
 } as const;

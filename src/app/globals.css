@@ -10,11 +10,65 @@
   --font-display: "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-body { @apply bg-slate-50 text-slate-900 antialiased; }
-@utility input { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100; }
+/*
+ * Tema oscuro del producto (panel, login, onboarding, invitaciones), con la misma estética que la landing.
+ * Reasigna la escala slate (invertida), la marca y los tonos de estado para que las clases existentes
+ * (text-slate-500, bg-emerald-100, text-brand-700...) se vean bien sobre fondo oscuro sin tocar cada página.
+ */
+.ui-dark {
+  color-scheme: dark;
+  --color-slate-50: #15141f;
+  --color-slate-100: #1d1c2a;
+  --color-slate-200: #282737;
+  --color-slate-300: #363548;
+  --color-slate-400: #7d7b94;
+  --color-slate-500: #9896ad;
+  --color-slate-600: #b3b1c6;
+  --color-slate-700: #cfcde0;
+  --color-slate-800: #e6e4f1;
+  --color-slate-900: #f6f5fb;
+
+  --color-brand-50: rgb(139 92 246 / 0.12);
+  --color-brand-100: rgb(139 92 246 / 0.25);
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #a78bfa;
+  --color-brand-700: #c4b5fd;
+
+  --color-emerald-50: rgb(16 185 129 / 0.1);
+  --color-emerald-100: rgb(16 185 129 / 0.15);
+  --color-emerald-600: #34d399;
+  --color-emerald-700: #6ee7b7;
+  --color-red-50: rgb(239 68 68 / 0.1);
+  --color-red-100: rgb(239 68 68 / 0.15);
+  --color-red-200: rgb(239 68 68 / 0.35);
+  --color-red-600: #f87171;
+  --color-red-700: #fca5a5;
+  --color-amber-50: rgb(245 158 11 / 0.1);
+  --color-amber-100: rgb(245 158 11 / 0.15);
+  --color-amber-800: #fcd34d;
+  --color-blue-100: rgb(59 130 246 / 0.15);
+  --color-blue-700: #93c5fd;
+  --color-orange-100: rgb(249 115 22 / 0.15);
+  --color-orange-700: #fdba74;
+  --color-violet-600: #c4b5fd;
+  --color-violet-800: #ddd6fe;
+
+  @apply text-slate-800;
+}
+
+@layer base {
+  .ui-dark :is(h1, h2, h3) { font-family: var(--font-display); color: #fff; }
+}
+
+body { @apply bg-[#0a0911] text-slate-900 antialiased; }
+
+@utility input {
+  @apply w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20;
+  & option { background: #13121e; }
+}
 @utility label { @apply mb-1 block text-sm font-medium text-slate-700; }
-@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50; }
-@utility btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700; }
-@utility btn-secondary { @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50; }
-@utility btn-danger { @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50; }
-@utility card { @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 disabled:opacity-50; }
+@utility btn-primary { @apply btn bg-gradient-to-r from-[#6d4cf5] to-[#8b5cf6] text-white shadow-[0_8px_24px_-10px_rgba(124,77,255,0.9)] hover:brightness-110; }
+@utility btn-secondary { @apply btn border border-white/15 bg-white/[0.03] text-slate-700 hover:border-white/30 hover:bg-white/[0.06]; }
+@utility btn-danger { @apply btn border border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/10; }
+@utility card { @apply rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-white/[0.015] p-5 backdrop-blur; }

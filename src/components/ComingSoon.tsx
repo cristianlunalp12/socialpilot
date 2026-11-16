@@ -33,19 +33,19 @@ export function ComingSoon({ feature, children, className, badge = true }: {
       <button type="button" className={clsx(className ?? "btn-secondary")}
         onClick={() => { setOpen(true); recordInterest(feature).catch(() => {}); }}>
         {children}
-        {badge && <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-white">{f.plan}</span>}
+        {badge && <span className="rounded-full bg-gradient-to-r from-[#ff7a85] to-[#8b5cf6] px-1.5 py-0.5 text-[10px] font-semibold uppercase text-white">{f.plan}</span>}
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4" onClick={() => setOpen(false)}>
-          <div role="dialog" aria-modal="true" aria-labelledby={`cs-${feature}`} className="w-full max-w-md rounded-2xl bg-white p-6 text-left shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setOpen(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby={`cs-${feature}`} className="ui-dark relative w-full max-w-md overflow-hidden rounded-3xl border border-violet-400/30 bg-[#12111c] p-6 text-left shadow-[0_0_80px_-20px_rgba(139,92,246,0.5)]" onClick={(e) => e.stopPropagation()}>
             <div className="mb-4 flex items-center justify-between">
               <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">🚀 Próximamente · Plan {f.plan}</span>
               <button onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-700" aria-label="Cerrar">✕</button>
             </div>
-            <h2 id={`cs-${feature}`} className="text-lg font-semibold text-slate-900">{f.title}</h2>
+            <h2 id={`cs-${feature}`} className="font-display text-xl font-semibold text-white">{f.title}</h2>
             <p className="mt-2 text-sm text-slate-600">{f.description}</p>
-            <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
+            <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-slate-600">
               Esta función estará disponible muy pronto con la <b>suscripción {f.plan}</b>. ¿Quieres que te avisemos cuando esté lista?
             </p>
             {notified ? (

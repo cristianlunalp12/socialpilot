@@ -8,29 +8,30 @@ export function Card({ className, children }: { className?: string; children: Re
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: React.ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        <h1 className="font-display text-3xl font-bold tracking-tight text-white">{title}</h1>
+        {subtitle && <p className="mt-1.5 text-sm text-slate-500">{subtitle}</p>}
       </div>
-      {actions && <div className="flex gap-2">{actions}</div>}
+      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
   );
 }
 
 export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <Card>
-      <div className="text-sm text-slate-500">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
-      {hint && <div className="mt-1 text-xs text-slate-400">{hint}</div>}
+    <Card className="relative overflow-hidden">
+      <span aria-hidden className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-violet-500/15 blur-2xl" />
+      <div className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</div>
+      <div className="mt-2 font-display text-3xl font-semibold tabular-nums text-white">{value}</div>
+      {hint && <div className="mt-1 text-xs text-slate-500">{hint}</div>}
     </Card>
   );
 }
 
 export function PlatformBadge({ platform }: { platform: Platform }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs font-medium text-slate-700">
       <span className="h-2 w-2 rounded-full" style={{ background: PLATFORM_COLOR[platform] }} />
       {PLATFORM_LABEL[platform]}
     </span>
@@ -56,5 +57,5 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 export function Empty({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">{children}</div>;
+  return <div className="rounded-2xl border border-dashed border-white/15 p-10 text-center text-sm text-slate-500">{children}</div>;
 }

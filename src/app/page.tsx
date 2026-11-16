@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { readSession } from "@/lib/session";
+import { Backdrop, GradientText, Icon, Logo } from "@/components/Brand";
 
 export const metadata = {
   title: "SocialPilot · Tu community manager con IA",
@@ -475,10 +476,6 @@ const btnPrimary =
   " bg-gradient-to-r from-[#6d4cf5] to-[#8b5cf6] text-white shadow-[0_8px_30px_-8px_rgba(124,77,255,0.8)] hover:brightness-110";
 const btnGhost = btnBase + " border border-white/15 text-slate-200 hover:border-white/30 hover:bg-white/5";
 
-function GradientText({ children }: { children: React.ReactNode }) {
-  return <span className="bg-gradient-to-r from-[#ff7a85] via-[#e879c9] to-[#a78bfa] bg-clip-text text-transparent">{children}</span>;
-}
-
 function SectionHeader({ eyebrow, title, text }: { eyebrow: string; title: React.ReactNode; text?: string }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
@@ -491,30 +488,6 @@ function SectionHeader({ eyebrow, title, text }: { eyebrow: string; title: React
 
 function MockCard({ children }: { children: React.ReactNode }) {
   return <div className="rounded-xl border border-white/10 bg-[#0f0e18] p-4">{children}</div>;
-}
-
-function Logo({ small }: { small?: boolean }) {
-  return (
-    <Link href="/" className="flex items-center gap-2.5">
-      <span className={"grid place-items-center rounded-lg bg-gradient-to-br from-[#ff7a85] to-[#8b5cf6] " + (small ? "h-7 w-7" : "h-8 w-8")}>
-        <svg viewBox="0 0 24 24" className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
-          <path d="M21 3 3 10.5l7 2.5 2.5 7L21 3Z" />
-          <path d="m10 13 4.5-4.5" />
-        </svg>
-      </span>
-      <span className={"font-display font-semibold text-white " + (small ? "text-base" : "text-xl")}>SocialPilot</span>
-    </Link>
-  );
-}
-
-function Backdrop() {
-  return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
-      <div className="absolute -left-40 top-0 h-[520px] w-[520px] rounded-full bg-violet-700/20 blur-[120px]" />
-      <div className="absolute -right-40 top-1/3 h-[520px] w-[520px] rounded-full bg-fuchsia-700/15 blur-[120px]" />
-      <div className="absolute bottom-0 left-1/3 h-[420px] w-[420px] rounded-full bg-indigo-700/15 blur-[120px]" />
-    </div>
-  );
 }
 
 function Waves() {
@@ -544,38 +517,6 @@ function Squiggle({ flip }: { flip?: boolean }) {
   return (
     <svg aria-hidden viewBox="0 0 60 12" className={"hidden h-3 w-14 text-violet-400/60 sm:block " + (flip ? "-scale-x-100" : "")} fill="none">
       <path d="M0 6c10 0 10-5 20-5s10 10 20 10 10-5 20-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function Icon({ name, className }: { name: string; className?: string }) {
-  const paths: Record<string, React.ReactNode> = {
-    calendar: (
-      <>
-        <rect x="3" y="5" width="18" height="16" rx="2" />
-        <path d="M3 10h18M8 3v4M16 3v4" />
-      </>
-    ),
-    spark: <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z" />,
-    chat: <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" />,
-    chart: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
-    bulb: (
-      <>
-        <path d="M9 18h6M10 21h4" />
-        <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" />
-      </>
-    ),
-    users: (
-      <>
-        <circle cx="9" cy="8" r="3.5" />
-        <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6" />
-      </>
-    ),
-    check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
-  };
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      {paths[name]}
     </svg>
   );
 }

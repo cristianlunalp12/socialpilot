@@ -16,6 +16,7 @@ SaaS multiusuario para programar publicaciones en Facebook, Instagram, TikTok y 
 - Demo local con un solo comando: `npm run demo` (Postgres integrado y forzado a UTF-8 por Windows) y lanzadores `.bat` / `.command`. Probado por el usuario en Windows.
 - Botones "Próximamente" (fake doors): `src/lib/upcoming.ts` y `src/components/ComingSoon.tsx`. Registran clics (`FeatureInterest`) y lista de espera (`WaitlistEntry`); los datos se ven en `/admin` (acceso por `ADMIN_EMAILS`).
 - Landing pública en `/` (`src/app/page.tsx`): estética oscura con degradados coral/violeta, comparativa contra un community manager, planes y FAQ. Precios de referencia en la constante `PLANS` (Inicial 19, Pro 39, Business 79 USD), aún sin cobro real. Usuarios con sesión ven "Ir a mi panel".
+- Panel, login, onboarding e invitaciones con la misma estética oscura de la landing: clase `.ui-dark` en `globals.css` (reasigna la escala slate, la marca y los tonos de estado) y piezas compartidas en `src/components/Brand.tsx` (Logo, Icon, GradientText, Backdrop). Las páginas nuevas del panel heredan el tema solas.
 - Despliegue: `render.yaml` (Blueprint) + `npm run start:prod`, que ejecuta migraciones, la semilla opcional (`DEMO_SEED`), la web y el worker juntos. Los archivos subidos se sirven desde `/media/[file]`.
 
 ## Pendiente / siguientes pasos
